@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>💘 Valentine ?</title>
+  <style>
+    :root{
+      --bg1:#ffdee9;
+      --bg2:#b5fffc;
+      --card:#ffffffcc;
+      --text:#2b1b1e;
+      --accent:#ff3b7a;
+      --accent2:#ff7aa8;
+      --shadow: 0 20px 60px rgba(0,0,0,.18);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: radial-gradient(1200px 700px at 20% 20%, var(--bg1), transparent 60%),
+                  radial-gradient(1100px 800px at 80% 70%, var(--bg2), transparent 55%),
+                  linear-gradient(135deg, #ffe6ef, #e8fffb);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      overflow:hidden;
+    }
+
+    /* petits coeurs en fond */
+    .hearts{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.35;
+      filter: blur(.2px);
+    }
+    .heart{
+      position:absolute;
+      font-size:20px;
+      animation: floatUp linear infinite;
+      transform: translateY(110vh);
+      user-select:none;
+    }
+    @keyframes floatUp{
+      0%{ transform: translateY(110vh) rotate(0deg); opacity:0}
+      10%{ opacity:1}
+      100%{ transform: translateY(-20vh) rotate(180deg); opacity:0}
+    }
+
+    .card{
+      width:min(520px, 92vw);
+      background:var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 28px 22px 22px;
+      text-align:center;
+      position:relative;
+    }
+
+    .badge{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #fff, #ffe9f2);
+      border:1px solid rgba(255, 59, 122, .18);
+      box-shadow: 0 10px 30px rgba(255, 59, 122, .14);
+      font-weight:650;
+    }
+
+    h1{
+      margin:16px 0 8px;
+      font-size: clamp(26px, 4vw, 36px);
+      letter-spacing: -.02em;
+    }
+    .subtitle{
+      margin: 0 0 16px;
+      opacity:.8;
+      font-size: 14.5px;
+    }
+
+    .question{
+      font-size: clamp(22px, 3.2vw, 30px);
+      margin: 18px 0 12px;
+      font-weight: 800;
+      color:#3b1b27;
+    }
+
+    .stage{
+      position:relative;
+      width:100%;
+      height: 170px;
+      margin-top: 8px;
+    }
+
+    .btn{
+      position:absolute;
+      padding: 14px 20px;
+      min-width: 140px;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 750;
+      box-shadow: 0 14px 28px rgba(0,0,0,.15);
+      transition: transform .12s ease, box-shadow .12s ease;
+      user-select:none;
+    }
+    .btn:active{ transform: scale(.98); }
+
+    .yes{
+      left: 20%;
+      top: 78px;
+      background: linear-gradient(135deg, var(--accent), #ff5b93);
+      color:white;
+    }
+    .yes:hover{ box-shadow: 0 18px 40px rgba(255, 59, 122, .35); transform: translateY(-1px); }
+
+    .no{
+      left: 58%;
+      top: 78px;
+      background: linear-gradient(135deg, #ffffff, #ffe6ef);
+      color:#5a2a39;
+      border: 1px solid rgba(255, 59, 122, .22);
+    }
+
+    .msg{
+      margin-top: 10px;
+      font-weight: 700;
+      color:#3b1b27;
+      min-height: 26px;
+    }
+
+    .small{
+      margin-top: 10px;
+      font-size: 12.5px;
+      opacity:.75;
+    }
+
+    .ring{
+      position:absolute;
+      inset:-40px;
+      border-radius: 40px;
+      background: radial-gradient(circle at 30% 10%, rgba(255,59,122,.20), transparent 55%),
+                  radial-gradient(circle at 80% 70%, rgba(255,122,168,.20), transparent 55%);
+      z-index:-1;
+      filter: blur(4px);
+    }
+  </style>
+</head>
+<body>
+  <div class="hearts" id="hearts"></div>
+
+  <div class="card" role="main" aria-label="Carte Saint-Valentin">
+    <div class="ring"></div>
+    <div class="badge">💌 Saint-Valentin <span style="opacity:.65">•</span> pour toi</div>
+    <h1>J’ai une question très importante…</h1>
+    <p class="subtitle">Promis, c’est simple. (Enfin… presque 😇)</p>
+
+    <div class="question">Veux-tu être ma Valentine ? 💘</div>
+
+    <div class="stage" id="stage" aria-label="Zone des boutons">
+      <button class="btn yes" id="yesBtn">Oui 💖</button>
+      <button class="btn no" id="noBtn">Non 🙈</button>
+    </div>
+
+    <div class="msg" id="msg"></div>
+    <div class="small">Astuce : essaye quand même de cliquer sur “Non”… 😅</div>
+  </div>
+
+  <script>
+    // Génère des coeurs qui flottent
+    const hearts = document.getElementById('hearts');
+    const heartEmojis = ["💗","💖","💘","💝","💕","💞","❤️","🌹"];
+    for(let i=0;i<26;i++){
+      const s = document.createElement('div');
+      s.className = 'heart';
+      s.textContent = heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
+      s.style.left = Math.random()*100 + 'vw';
+      s.style.animationDuration = (6 + Math.random()*8) + 's';
+      s.style.animationDelay = (Math.random()*6) + 's';
+      s.style.fontSize = (14 + Math.random()*18) + 'px';
+      hearts.appendChild(s);
+    }
+
+    const stage = document.getElementById('stage');
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const msg = document.getElementById('msg');
+
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+    function moveNoButton(){
+      const stageRect = stage.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const padding = 10;
+      const maxX = stageRect.width - btnRect.width - padding;
+      const maxY = stageRect.height - btnRect.height - padding;
+
+      const x = Math.random() * maxX + padding;
+      const y = Math.random() * maxY + padding;
+
+      noBtn.style.left = x + 'px';
+      noBtn.style.top  = y + 'px';
+    }
+
+    // Au début, place "Non" quelque part de plausible
+    moveNoButton();
+
+    // Fuite quand la souris s'approche
+    stage.addEventListener('mousemove', (e) => {
+      const btnRect = noBtn.getBoundingClientRect();
+      const dx = (e.clientX - (btnRect.left + btnRect.width/2));
+      const dy = (e.clientY - (btnRect.top + btnRect.height/2));
+      const dist = Math.hypot(dx, dy);
+
+      // Seuil de "proximité" : plus petit = plus facile
+      if(dist < 120){
+        moveNoButton();
+      }
+    });
+
+    // Sur mobile : fuite au toucher/approche
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    }, {passive:false});
+
+    yesBtn.addEventListener('click', () => {
+      msg.textContent = "YEESSS 💞 Rendez-vous officiel : câlins + chocolat 🍫✨";
+      // petite célébration
+      confettiHearts();
+    });
+
+    function confettiHearts(){
+      for(let i=0;i<24;i++){
+        const p = document.createElement('div');
+        p.className = 'heart';
+        p.textContent = heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
+        p.style.left = (45 + (Math.random()*10 - 5)) + 'vw';
+        p.style.animationDuration = (3.5 + Math.random()*2.5) + 's';
+        p.style.animationDelay = '0s';
+        p.style.fontSize = (18 + Math.random()*22) + 'px';
+        p.style.opacity = '0.9';
+        hearts.appendChild(p);
+        setTimeout(() => p.remove(), 6000);
+      }
+    }
+  </script>
+</body>
+</html>
